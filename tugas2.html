@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tugas Deadline</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background-color: #f8fafc;
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.15) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(168, 85, 247, 0.15) 0px, transparent 50%);
+            min-height: 100vh;
+        }
+        
+        h1, h2, h3 { 
+            font-family: 'Bricolage Grotesque', sans-serif; 
+        }
+
+        .glass-card { 
+            background: rgba(255, 255, 255, 0.7); 
+            backdrop-filter: blur(12px); 
+            border: 1px solid rgba(255, 255, 255, 0.3); 
+        }
+
+        .task-card { 
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+            border-left: 6px solid #6366f1;
+        }
+
+        .task-card:hover { 
+            transform: translateY(-3px) scale(1.01);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+
+        /* Animasi masuk */
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-task { animation: slideIn 0.4s ease-out forwards; }
+    </style>
+</head>
+<body class="p-4 md:p-10 flex items-center justify-center">
+
+    <div class="max-w-3xl w-full mx-auto">
+        <div class="mb-10 flex flex-col md:flex-row justify-between items-end gap-4">
+            <div>
+                <span class="inline-block px-3 py-1 rounded-full bg-indigo-100 text-indigo-600 text-[10px] font-bold uppercase tracking-wider mb-2">Workspace v10.0</span>
+                <h1 class="text-4xl md:text-5xl font-extrabold text-slate-900 tracking-tight">Timeline Tugas</h1>
+                <p class="text-slate-600 mt-1">Mengelola jadwal kuliah.</p>
+                <p class="text-slate-400 mt-1">(kurangi 1 hari)</p>
+            </div>
+            <div id="stats" class="px-4 py-2 bg-white/50 rounded-lg border border-slate-200 text-xs font-bold uppercase tracking-widest text-slate-500 shadow-sm">
+                0 Tugas Terdaftar
+            </div>
+        </div>
+
+        <div class="glass-card rounded-[2rem] p-8 shadow-2xl mb-12">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                <div class="md:col-span-2">
+                    <label class="text-[11px] font-bold text-slate-400 ml-1 uppercase tracking-wider">Nama Mata Kuliah / Tugas</label>
+                    <input type="text" id="taskName" placeholder="Contoh: Interaksi Manusia Dan Komputer - Tugas (M/K)" 
+                        class="w-full mt-1.5 px-5 py-4 rounded-2xl bg-white border border-slate-100 focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all outline-none text-slate-700 shadow-sm">
+                </div>
+                <div>
+                    <label class="text-[11px] font-bold text-slate-400 ml-1 uppercase tracking-wider">Tanggal Mulai</label>
+                    <input type="date" id="startDate" class="w-full mt-1.5 px-5 py-4 rounded-2xl bg-white border border-slate-100 focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 outline-none text-slate-500 shadow-sm">
+                </div>
+                <div>
+                    <label class="text-[11px] font-bold text-slate-400 ml-1 uppercase tracking-wider">Deadline</label>
+                    <input type="date" id="endDate" class="w-full mt-1.5 px-5 py-4 rounded-2xl bg-white border border-slate-100 focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 outline-none text-slate-500 shadow-sm">
+                </div>
+            </div>
+            <button onclick="addTask()" class="w-full bg-slate-300 hover:bg-indigo-600 text-white font-bold py-4 rounded-2xl transition-all duration-300 shadow-x1 hover:shadow-indigo-300 group flex items-center justify-center gap-2">
+                <span>Tambahkan ke Jadwal</span>
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                </svg>
+            </button>
+        </div>
+
+        <!-- Filter Tugas -->
+        <div class="flex justify-center items-center gap-0 mb-1">
+            <button onclick="filterTasks('completed')" class="px-2 py-2 bg-gray-100 text-gray-800 box-full text-sm font-semibold hover:bg-indigo-50 transition-all">Tugas Selesai</button>
+            <button onclick="filterTasks('pending')" class="px-2 py-2 bg-gray-100 text-gray-800 box-full text-sm font-semibold hover:bg-indigo-50 transition-all">Tugas Belum Selesai</button>
+            <button onclick="filterTasks('all')" class="px-2 py-2 bg-gray-100 text-gray-800 box-full text-sm font-semibold hover:bg-indigo-50 transition-all">Tampilkan Semua</button>
+</div>
+
+        <div id="taskList" class="space-y-4"></div>
+    </div>
+
+    <script>
+        let tasks = [];
+
+        function addTask() {
+            const name = document.getElementById('taskName').value;
+            const start = document.getElementById('startDate').value;
+            const end = document.getElementById('endDate').value;
+
+            if (!name || !start || !end) {
+                alert("Mohon isi semua data!");
+                return;
+            }
+
+            const task = {
+                id: Date.now(),
+                name,
+                start,
+                end,
+                status: 'pending',  
+            };
+
+            tasks.push(task);
+
+            const list = document.getElementById('taskList');
+            const dateOptions = { day: 'numeric', month: 'long' };
+            const startFmt = new Date(start).toLocaleDateString('id-ID', dateOptions);
+            const endFmt = new Date(end).toLocaleDateString('id-ID', dateOptions);
+
+            const card = `
+                <div id="task-${task.id}" class="task-card animate-task bg-white p-6 rounded-3xl flex flex-col md:flex-row md:items-center justify-between gap-4 border border-slate-100 shadow-sm">
+                    <div class="flex-1">
+                        <div class="flex items-center gap-3 mb-2">
+                            <span class="text-[10px] px-2.5 py-1 rounded-lg border font-extrabold uppercase ${task.status === 'completed' ? 'bg-green-100 text-green-600 border-green-200' : 'bg-indigo-50 text-indigo-600 border-indigo-100'}">${task.status === 'completed' ? 'Selesai' : 'On Progress'}</span>
+                            <span>Tambahkan ke Jadwal</span>
+
+                            <span class="text-[11px] text-slate-400 font-bold tracking-tight">${startFmt} — ${endFmt}</span>
+                        </div>
+                        <h3 class="text-xl font-bold text-slate-800">${task.name}</h3>
+                    </div>
+                    
+                    <div class="flex items-center gap-6">
+                        <button onclick="markComplete(${task.id})" class="p-3 bg-slate-50 hover:bg-green-50 text-slate-400 hover:text-green-500 rounded-2xl transition-all border border-transparent hover:border-green-100">
+                            Tandai Selesai
+                        </button>
+                        <button onclick="deleteTask(${task.id})" class="p-3 bg-slate-50 hover:bg-red-50 text-slate-400 hover:text-red-500 rounded-2xl transition-all border border-transparent hover:border-red-100">
+                            Hapus
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            list.insertAdjacentHTML('afterbegin', card);
+            resetForm();
+            updateCount();
+        }
+
+        function markComplete(id) {
+            const task = tasks.find(task => task.id === id);
+            task.status = 'completed';
+            const taskEl = document.getElementById(`task-${id}`);
+            taskEl.querySelector('span').classList.replace('bg-indigo-50', 'bg-green-100');
+            taskEl.querySelector('span').classList.replace('text-indigo-600', 'text-green-600');
+            taskEl.querySelector('span').classList.replace('border-indigo-100', 'border-green-200');
+            taskEl.querySelector('span').textContent = 'Selesai';
+            updateCount();
+        }
+
+        function filterTasks(status) {
+            const filteredTasks = tasks.filter(task => status === 'all' || task.status === status);
+            const list = document.getElementById('taskList');
+            list.innerHTML = '';
+            filteredTasks.forEach(task => {
+                const dateOptions = { day: 'numeric', month: 'long' };
+                const startFmt = new Date(task.start).toLocaleDateString('id-ID', dateOptions);
+                const endFmt = new Date(task.end).toLocaleDateString('id-ID', dateOptions);
+                const card = `
+                    <div id="task-${task.id}" class="task-card animate-task bg-white p-6 rounded-3xl flex flex-col md:flex-row md:items-center justify-between gap-4 border border-slate-100 shadow-sm">
+                        <div class="flex-1">
+                            <div class="flex items-center gap-3 mb-2">
+                                <span class="text-[10px] px-2.5 py-1 rounded-lg border font-extrabold uppercase ${task.status === 'completed' ? 'bg-green-100 text-green-600 border-green-200' : 'bg-indigo-50 text-indigo-600 border-indigo-100'}">${task.status === 'completed' ? 'Selesai' : 'On Progress'}</span>
+                                <span>Tambahkan ke Jadwal</span>
+
+                                <span class="text-[11px] text-slate-400 font-bold tracking-tight">${startFmt} — ${endFmt}</span>
+                            </div>
+                            <h3 class="text-xl font-bold text-slate-800">${task.name}</h3>
+                        </div>
+
+                        <div class="flex items-center gap-6">
+                            <button onclick="markComplete(${task.id})" class="p-3 bg-slate-50 hover:bg-green-50 text-slate-400 hover:text-green-500 rounded-2xl transition-all border border-transparent hover:border-green-100">
+                                Tandai Selesai
+                            </button>
+                            <button onclick="deleteTask(${task.id})" class="p-3 bg-slate-50 hover:bg-red-50 text-slate-400 hover:text-red-500 rounded-2xl transition-all border border-transparent hover:border-red-100">
+                                Hapus
+                            </button>
+                        </div>
+                    </div>
+                `;
+                list.insertAdjacentHTML('afterbegin', card);
+            });
+        }
+
+        function deleteTask(id) {
+            tasks = tasks.filter(task => task.id !== id);
+            updateCount();
+            document.getElementById(`task-${id}`).remove();
+        }
+
+        function resetForm() {
+            document.getElementById('taskName').value = '';
+        }
+
+        function updateCount() {
+            const count = tasks.length;
+            document.getElementById('stats').innerText = `${count} Tugas Terdaftar`;
+        }
+        
+    </script>
+</body>
+</html>
